@@ -1,12 +1,15 @@
 package com.shambu.autoattendance.UI;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -40,6 +43,7 @@ public class AttendanceFragment extends Fragment implements AttendanceListener {
     private List<SubjectPojo> allSubs;
     private AttendanceRVadapter adapter;
     private AutoAttendanceData data;
+    private View view;
 
 
     @BindView(R.id.set_location_button)
@@ -54,7 +58,7 @@ public class AttendanceFragment extends Fragment implements AttendanceListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_attendance, container, false);
+        view = inflater.inflate(R.layout.fragment_attendance, container, false);
         ButterKnife.bind(this, view);
 
         allSubs = new ArrayList<>();
@@ -144,7 +148,15 @@ public class AttendanceFragment extends Fragment implements AttendanceListener {
 
         Intent intent = new Intent(getContext(), AttendanceHistoryTimelineActivity.class);
         intent.putExtra("SubjectCode", allSubs.get(position).getSubjectCode());
-        startActivity(intent);
+        startActivityForResult(intent, 1010);
 
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 1010){
+            Navigation.findNavController(view).navigate(R.id.action_attendanceFragment_self);
+        }
     }
 }

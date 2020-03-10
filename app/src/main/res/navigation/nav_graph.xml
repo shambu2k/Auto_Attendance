@@ -9,7 +9,12 @@
         android:id="@+id/attendanceFragment"
         android:name="com.shambu.autoattendance.UI.AttendanceFragment"
         android:label="fragment_attendance"
-        tools:layout="@layout/fragment_attendance" />
+        tools:layout="@layout/fragment_attendance" >
+        <action
+            android:id="@+id/action_attendanceFragment_self"
+            app:destination="@id/attendanceFragment"
+            app:popUpTo="@id/attendanceFragment" />
+    </fragment>
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.shambu.autoattendance.UI.SettingsFragment"

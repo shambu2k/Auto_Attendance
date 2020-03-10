@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.shambu.autoattendance.DataClasses.AttendanceHistoryPojo;
@@ -18,8 +19,11 @@ public class AttendanceHistoryRVadapter extends RecyclerView.Adapter {
     private static final String TAG = AttendanceHistoryRVadapter.class.getSimpleName();
     private Context mContext;
     private List<AttendanceHistoryPojo> allHistory;
+    private AttendanceHistoryTimelineListener listener;
 
-    public AttendanceHistoryRVadapter(Context mContext, List<AttendanceHistoryPojo> allHistory) {
+    public AttendanceHistoryRVadapter(AttendanceHistoryTimelineListener listener,
+                                      Context mContext, List<AttendanceHistoryPojo> allHistory) {
+        this.listener = listener;
         this.mContext = mContext;
         this.allHistory = allHistory;
     }
@@ -30,7 +34,7 @@ public class AttendanceHistoryRVadapter extends RecyclerView.Adapter {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.attendancehistory_rv_item, parent,
                 false);
 
-        return new AttendanceHistoryViewHolder(view);
+        return new AttendanceHistoryViewHolder(view, listener);
     }
 
     @Override
@@ -44,14 +48,20 @@ public class AttendanceHistoryRVadapter extends RecyclerView.Adapter {
         return allHistory.size();
     }
 
-    private class AttendanceHistoryViewHolder extends RecyclerView.ViewHolder {
+    private class AttendanceHistoryViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
 
         TextView date_tv, status_tv;
+        CardView card;
+        private AttendanceHistoryTimelineListener mListener;
 
-        public AttendanceHistoryViewHolder(@NonNull View itemView) {
+        public AttendanceHistoryViewHolder(@NonNull View itemView, AttendanceHistoryTimelineListener listener) {
             super(itemView);
+            this.mListener = listener;
+            card = itemView.findViewById(R.id.attHistory_cardview);
             date_tv = itemView.findViewById(R.id.history_date_tv);
             status_tv = itemView.findViewById(R.id.history_status_tv);
+
+            card.setOnLongClickListener(this);
         }
 
         void bind(AttendanceHistoryPojo pojo){
@@ -64,6 +74,12 @@ public class AttendanceHistoryRVadapter extends RecyclerView.Adapter {
             } else {
                 status_tv.setText("Status: Class cancelled");
             }
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            mListener.editHistoryDetails(getAdapterPosition());
+            return false;
         }
     }
 }
