@@ -49,7 +49,7 @@ public class TimeTableFragment extends Fragment implements TimeTableItemViewHold
     private List<SubjectPojo> allSubjectsData;
     private AutoAttendanceData data;
 
-    private List<String> daysOftheWeek = Arrays.asList("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun");
+    private List<String> daysOftheWeek = Arrays.asList("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
     private long mNow = 0;
     private View view;
 
@@ -109,8 +109,8 @@ public class TimeTableFragment extends Fragment implements TimeTableItemViewHold
         TypedArray colors_table_light = getResources().obtainTypedArray(R.array.colors_table_light);
         ArrayList<TimeTableData> tables = new ArrayList<>();
 
-        int dayloop = 0;
-        while (dayloop < 7) {
+        int dayloop = 1;
+        while (dayloop <= 7) {
             ArrayList<TimeData> values = new ArrayList<>();
             for (int i = 0; i < allSubjectsData.size(); i++) {
                 for (int j = 0; j < allSubjectsData.get(i).getSchedule().size(); j++) {
@@ -123,7 +123,7 @@ public class TimeTableFragment extends Fragment implements TimeTableItemViewHold
                 }
             }
             sortValues(values);
-            tables.add(new TimeTableData(daysOftheWeek.get(dayloop), values));
+            tables.add(new TimeTableData(daysOftheWeek.get(dayloop-1), values));
             dayloop++;
         }
         return tables;

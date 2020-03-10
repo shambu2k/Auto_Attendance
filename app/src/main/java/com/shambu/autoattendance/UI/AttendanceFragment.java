@@ -90,7 +90,7 @@ public class AttendanceFragment extends Fragment implements AttendanceListener {
         switch (view.getId()) {
             case R.id.att_mark_present_imgv :
                 Log.d(TAG, "Present for "+allSubs.get(position).getSubjectName());
-                AttendanceHistoryPojo pojo1 = new AttendanceHistoryPojo(new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()),
+                AttendanceHistoryPojo pojo1 = new AttendanceHistoryPojo(allSubs.get(position).getSubjectCode(), new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()),
                         true, true);
                 if(allSubs.get(position).getAttendanceHistory()==null){
                     List<AttendanceHistoryPojo> attendanceHistoryList = new ArrayList<>();
@@ -106,7 +106,7 @@ public class AttendanceFragment extends Fragment implements AttendanceListener {
                 break;
             case R.id.att_mark_noclass_imgv :
                 Log.d(TAG, "Class cancelled for "+allSubs.get(position).getSubjectName());
-                AttendanceHistoryPojo pojo2 = new AttendanceHistoryPojo(new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()),
+                AttendanceHistoryPojo pojo2 = new AttendanceHistoryPojo(allSubs.get(position).getSubjectCode(), new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()),
                         false, false);
                 if(allSubs.get(position).getAttendanceHistory()==null){
                     List<AttendanceHistoryPojo> attendanceHistoryList = new ArrayList<>();
@@ -122,7 +122,7 @@ public class AttendanceFragment extends Fragment implements AttendanceListener {
                 break;
             case R.id.att_mark_absent_imgv :
                 Log.d(TAG, "Absent for "+allSubs.get(position).getSubjectName());
-                AttendanceHistoryPojo pojo3 = new AttendanceHistoryPojo(new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()),
+                AttendanceHistoryPojo pojo3 = new AttendanceHistoryPojo(allSubs.get(position).getSubjectCode(), new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()),
                         false, true);
                 if(allSubs.get(position).getAttendanceHistory()==null){
                     List<AttendanceHistoryPojo> attendanceHistoryList = new ArrayList<>();

@@ -2,14 +2,24 @@ package com.shambu.autoattendance.DataClasses;
 
 public class SubjectSchedulePojo {
     private int day, fH, fM, tH, tM;
+    private String Subcode;
 
-    public SubjectSchedulePojo(int day, int fH, int fM, int tH, int tM) {
+    public SubjectSchedulePojo(String subcode, int day, int fH, int fM, int tH, int tM) {
+        this.Subcode = subcode;
         this.day = day;
         this.fH = fH;
         this.fM = fM;
         this.tH = tH;
         this.tM = tM;
 
+    }
+
+    public String getSubcode() {
+        return Subcode;
+    }
+
+    public void setSubcode(String subcode) {
+        Subcode = subcode;
     }
 
     public int getDay() {

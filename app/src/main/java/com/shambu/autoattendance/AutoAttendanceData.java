@@ -75,12 +75,12 @@ public class AutoAttendanceData extends SQLiteOpenHelper {
         long stat = db.insert(TABLE_NAME, null, values);
         db.close();
 
-        Log.d(TAG, "Added new subject! status :"+stat);
+        Log.d(TAG, "Added new subject! status :" + stat);
     }
 
-    public List<SubjectPojo> getAllDatafromSQL(){
+    public List<SubjectPojo> getAllDatafromSQL() {
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "SELECT * FROM " + TABLE_NAME ;
+        String query = "SELECT * FROM " + TABLE_NAME;
 
         List<SubjectPojo> subjects = new ArrayList<>();
         Cursor cursor = db.rawQuery(query, null);
@@ -89,8 +89,8 @@ public class AutoAttendanceData extends SQLiteOpenHelper {
         Type listTypeAH = new TypeToken<List<AttendanceHistoryPojo>>() {
         }.getType();
 
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 SubjectPojo pojo = new SubjectPojo(
                         cursor.getInt(cursor.getColumnIndex(COL_ID)),
                         cursor.getInt(cursor.getColumnIndex(COL_MINPER)),
@@ -99,9 +99,9 @@ public class AutoAttendanceData extends SQLiteOpenHelper {
                         cursor.getString(cursor.getColumnIndex(COL_SUBPROF)),
                         new Gson().fromJson(cursor.getString(cursor.getColumnIndex(COL_SCHEDULE)), listTypeSch),
                         new Gson().fromJson(cursor.getString(cursor.getColumnIndex(COL_ATTENDANCE)), listTypeAH));
-                Log.d(TAG, "sche from table: "+cursor.getString(cursor.getColumnIndex(COL_SCHEDULE)));
+                Log.d(TAG, "sche from table: " + cursor.getString(cursor.getColumnIndex(COL_SCHEDULE)));
                 subjects.add(pojo);
-            }while (cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
         db.close();
@@ -131,8 +131,36 @@ public class AutoAttendanceData extends SQLiteOpenHelper {
                         new Gson().fromJson(cursor.getString(cursor.getColumnIndex(COL_ATTENDANCE)), listTypeAH));
                 Log.d(TAG, "sche from table: " + cursor.getString(cursor.getColumnIndex(COL_SCHEDULE)));
             } while (cursor.moveToNext());
+        } else {
+            return null;
         }
-        else {
+        return pojo;
+    }
+
+    public SubjectPojo getSubjectDataFromCode(String subCode) {
+        SubjectPojo pojo;
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + COL_SUBCODE + " = '" + subCode + "'";
+
+        Cursor cursor = db.rawQuery(query, null);
+        Type listTypeSch = new TypeToken<List<SubjectSchedulePojo>>() {
+        }.getType();
+        Type listTypeAH = new TypeToken<List<AttendanceHistoryPojo>>() {
+        }.getType();
+
+        if (cursor.moveToFirst()) {
+            do {
+                pojo = new SubjectPojo(
+                        cursor.getInt(cursor.getColumnIndex(COL_ID)),
+                        cursor.getInt(cursor.getColumnIndex(COL_MINPER)),
+                        cursor.getString(cursor.getColumnIndex(COL_SUBCODE)),
+                        cursor.getString(cursor.getColumnIndex(COL_SUBNAME)),
+                        cursor.getString(cursor.getColumnIndex(COL_SUBPROF)),
+                        new Gson().fromJson(cursor.getString(cursor.getColumnIndex(COL_SCHEDULE)), listTypeSch),
+                        new Gson().fromJson(cursor.getString(cursor.getColumnIndex(COL_ATTENDANCE)), listTypeAH));
+                Log.d(TAG, "sche from table: " + cursor.getString(cursor.getColumnIndex(COL_SCHEDULE)));
+            } while (cursor.moveToNext());
+        } else {
             return null;
         }
         return pojo;
@@ -206,22 +234,95 @@ public class AutoAttendanceData extends SQLiteOpenHelper {
         Log.d(TAG, "Updated!!");
     }
 
-    public void deleteSubject(String subcode){
+    public void deleteSubject(String subcode) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        db.delete(TABLE_NAME, COL_SUBCODE+" = '"+subcode+"'", null);
+        db.delete(TABLE_NAME, COL_SUBCODE + " = '" + subcode + "'", null);
 
         db.close();
         Log.d(TAG, "Deleted!!");
     }
 
-    public void updateSubjectAttendance(String subcode, List<AttendanceHistoryPojo> historyPojos){
+    public void updateSubjectAttendance(String subcode, List<AttendanceHistoryPojo> historyPojos) {
         String ah = new Gson().toJson(historyPojos);
         SQLiteDatabase db = this.getWritableDatabase();
-        String updateQuery = "UPDATE "+TABLE_NAME+" SET "+COL_ATTENDANCE+" = '"+ah+"' WHERE "+COL_SUBCODE+
-                " = '"+subcode+"'";
+        String updateQuery = "UPDATE " + TABLE_NAME + " SET " + COL_ATTENDANCE + " = '" + ah + "' WHERE " + COL_SUBCODE +
+                " = '" + subcode + "'";
         db.execSQL(updateQuery);
         db.close();
-        Log.d(TAG, "Updated!! "+ah);
+        Log.d(TAG, "Updated!! " + ah);
+    }
+
+    public List<String> getAttendedPeriodCodes(int ingressDay, int ingressHour, int ingressMinute,
+                                                        int egressDay, int egressHour, int egressMinute) {
+
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + TABLE_NAME;
+
+        String subTimingsJson;
+        List<SubjectSchedulePojo> subTimings = new ArrayList<>();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                subTimingsJson = cursor.getString(cursor.getColumnIndex(COL_SCHEDULE));
+                Type listType = new TypeToken<List<SubjectSchedulePojo>>() {
+                }.getType();
+                if (subTimings.size() == 0) {
+                    subTimings = new Gson().fromJson(subTimingsJson, listType);
+                } else {
+                    subTimings.addAll(new Gson().fromJson(subTimingsJson, listType));
+                }
+            } while (cursor.moveToNext());
+        } else {
+            return null;
+        }
+
+        cursor.close();
+        db.close();
+
+        List<String> attendedListSubcode = new ArrayList<>();
+
+        if (ingressDay == egressDay) {
+            for (int i = 0; i < subTimings.size(); i++) {
+                if (subTimings.get(i).getDay() == ingressDay) {
+                    if (ingressHour < subTimings.get(i).getfH() &&
+                            egressHour > subTimings.get(i).gettH()) {
+                        attendedListSubcode.add(subTimings.get(i).getSubcode());
+                        Log.d(TAG, "< > "+subTimings.get(i).getSubcode());
+                    } else if (ingressHour == subTimings.get(i).getfH() &&
+                            egressHour > subTimings.get(i).gettH()) {
+                        if (ingressMinute <= subTimings.get(i).getfM()) {
+                            attendedListSubcode.add(subTimings.get(i).getSubcode());
+                            Log.d(TAG, "= > "+subTimings.get(i).getSubcode());
+                        }
+                    } else if (ingressHour < subTimings.get(i).getfH() &&
+                            egressHour == subTimings.get(i).gettH()) {
+                        if (egressMinute >= subTimings.get(i).gettM()) {
+                            attendedListSubcode.add(subTimings.get(i).getSubcode());
+                            Log.d(TAG, "< = "+subTimings.get(i).getSubcode());
+                        }
+                    } else if (ingressHour == subTimings.get(i).getfH() &&
+                            egressHour == subTimings.get(i).gettH()) {
+                        if (ingressMinute <= subTimings.get(i).getfM() &&
+                                egressMinute >= subTimings.get(i).gettM()) {
+                            attendedListSubcode.add(subTimings.get(i).getSubcode());
+                            Log.d(TAG, "= = "+subTimings.get(i).getSubcode());
+                        }
+                    } else {
+
+                    }
+                } else {
+
+                }
+            }
+        }
+
+        if(attendedListSubcode.size()==0){
+            return null;
+        } else {
+            return attendedListSubcode;
+        }
     }
 }

@@ -115,43 +115,43 @@ public class EditSubjectActivity extends AppCompatActivity implements View.OnCli
 
         for(int i = 0 ; i < pojo.getSchedule().size() ; i++){
             switch (pojo.getSchedule().get(i).getDay()){
-                case 0 : {
+                case 2 : {
                     mon.setChecked(true);
                     setTiminginTextView(fmon, pojo.getSchedule().get(i).getfH(), pojo.getSchedule().get(i).getfM());
                     setTiminginTextView(tmon, pojo.getSchedule().get(i).gettH(), pojo.getSchedule().get(i).gettM());
                     break;
                 }
-                case 1 : {
+                case 3 : {
                     tue.setChecked(true);
                     setTiminginTextView(ftue, pojo.getSchedule().get(i).getfH(), pojo.getSchedule().get(i).getfM());
                     setTiminginTextView(ttue, pojo.getSchedule().get(i).gettH(), pojo.getSchedule().get(i).gettM());
                     break;
                 }
-                case 2 : {
+                case 4 : {
                     wed.setChecked(true);
                     setTiminginTextView(fwed, pojo.getSchedule().get(i).getfH(), pojo.getSchedule().get(i).getfM());
                     setTiminginTextView(twed, pojo.getSchedule().get(i).gettH(), pojo.getSchedule().get(i).gettM());
                     break;
                 }
-                case 3 : {
+                case 5 : {
                     thur.isChecked();
                     setTiminginTextView(fthur, pojo.getSchedule().get(i).getfH(), pojo.getSchedule().get(i).getfM());
                     setTiminginTextView(tthur, pojo.getSchedule().get(i).gettH(), pojo.getSchedule().get(i).gettM());
                     break;
                 }
-                case 4 : {
+                case 6 : {
                     fri.setChecked(true);
                     setTiminginTextView(ffri, pojo.getSchedule().get(i).getfH(), pojo.getSchedule().get(i).getfM());
                     setTiminginTextView(tfri, pojo.getSchedule().get(i).gettH(), pojo.getSchedule().get(i).gettM());
                     break;
                 }
-                case 5 : {
+                case 7 : {
                     sat.setChecked(true);
                     setTiminginTextView(fsat, pojo.getSchedule().get(i).getfH(), pojo.getSchedule().get(i).getfM());
                     setTiminginTextView(tsat, pojo.getSchedule().get(i).gettH(), pojo.getSchedule().get(i).gettM());
                     break;
                 }
-                case 6 : {
+                case 1 : {
                     sun.setChecked(true);
                     setTiminginTextView(fsun, pojo.getSchedule().get(i).getfH(), pojo.getSchedule().get(i).getfM());
                     setTiminginTextView(tsun, pojo.getSchedule().get(i).gettH(), pojo.getSchedule().get(i).gettM());
@@ -217,37 +217,37 @@ public class EditSubjectActivity extends AppCompatActivity implements View.OnCli
     @OnClick(R.id.save_button)
     void saveSubject() {
         if (mon.isChecked()) {
-            SubjectSchedulePojo ss = new SubjectSchedulePojo(0,
+            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(), 2,
                     getH(fmon), getM(fmon), getH(tmon), getM(tmon));
             subSchedule.add(ss);
         }
         if (tue.isChecked()) {
-            SubjectSchedulePojo ss = new SubjectSchedulePojo(1,
+            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(), 3,
                     getH(ftue), getM(ftue), getH(ttue), getM(ttue));
             subSchedule.add(ss);
         }
         if (wed.isChecked()) {
-            SubjectSchedulePojo ss = new SubjectSchedulePojo(2,
+            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),4,
                     getH(fwed), getM(fwed), getH(twed), getM(twed));
             subSchedule.add(ss);
         }
         if (thur.isChecked()) {
-            SubjectSchedulePojo ss = new SubjectSchedulePojo(3,
+            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),5,
                     getH(fthur), getM(fthur), getH(tthur), getM(tthur));
             subSchedule.add(ss);
         }
         if (fri.isChecked()) {
-            SubjectSchedulePojo ss = new SubjectSchedulePojo(4,
+            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),6,
                     getH(ffri), getM(ffri), getH(tfri), getM(tfri));
             subSchedule.add(ss);
         }
         if (sat.isChecked()) {
-            SubjectSchedulePojo ss = new SubjectSchedulePojo(5,
+            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),7,
                     getH(fsat), getM(fsat), getH(tsat), getM(tsat));
             subSchedule.add(ss);
         }
         if (sun.isChecked()) {
-            SubjectSchedulePojo ss = new SubjectSchedulePojo(6,
+            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),1,
                     getH(fsun), getM(fsun), getH(tsun), getM(tsun));
             subSchedule.add(ss);
         }

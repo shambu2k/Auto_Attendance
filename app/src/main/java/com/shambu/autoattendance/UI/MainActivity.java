@@ -10,19 +10,24 @@ import androidx.navigation.ui.NavigationUI;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.pathsense.android.sdk.location.PathsenseLocationProviderApi;
+import com.shambu.autoattendance.GeofencingServiceTogglerInterface;
+import com.shambu.autoattendance.PathsenseGeofenceReceiver;
 import com.shambu.autoattendance.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements GeofencingServiceTogglerInterface {
 
     private String TAG = MainActivity.class.getSimpleName();
     private static final int ERROR_DIALOG_REQUEST = 9001;
@@ -32,6 +37,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
 
     private Boolean mLocationAccessGranted = false;
+
+    private LatLng latLng;
+
+    private SharedPreferences pref;
 
     @BindView(R.id.btm_nav_view)
     BottomNavigationView bottomNavigationView;
@@ -48,6 +57,29 @@ public class MainActivity extends AppCompatActivity {
         iSServicesOK();
 
         getLocationPermissions();
+
+        pref = getApplicationContext().getSharedPreferences("AutoAtt", 0);
+        latLng = new LatLng(Double.valueOf(pref.getString("ClassRoomLat", "12.121212")),
+                Double.valueOf(pref.getString("ClassRoomLng", "12.121212"))) ;
+
+        if(latLng.latitude!=12.121212 && pref.getString("GeofencingService", "ON").equals("ON")){
+            Log.d(TAG, "Creating GeoFence...");
+            PathsenseLocationProviderApi api = PathsenseLocationProviderApi.getInstance(this);
+            api.addGeofence("Classroom", latLng.latitude, latLng.longitude, 100, PathsenseGeofenceReceiver.class);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        latLng = new LatLng(Double.valueOf(pref.getString("ClassRoomLat", "12.121212")),
+                Double.valueOf(pref.getString("ClassRoomLng", "12.121212"))) ;
+
+        if(latLng.latitude!=12.121212 && pref.getString("GeofencingService", "ON").equals("ON")){
+            Log.d(TAG, "Creating GeoFence...");
+            PathsenseLocationProviderApi api = PathsenseLocationProviderApi.getInstance(this);
+            api.addGeofence("Classroom", latLng.latitude, latLng.longitude, 100, PathsenseGeofenceReceiver.class);
+        }
     }
 
     private void getLocationPermissions() {
@@ -98,5 +130,25 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "Map requests cannot be made");
         }
         return false;
+    }
+
+
+    @Override
+    public void startGService() {
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("GeofencingService", "ON");
+        editor.commit();
+        PathsenseLocationProviderApi api = PathsenseLocationProviderApi.getInstance(this);
+        api.addGeofence("Classroom", latLng.latitude, latLng.longitude, 100, PathsenseGeofenceReceiver.class);
+    }
+
+    @Override
+    public void stopGService() {
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("GeofencingService", "OFF");
+        editor.commit();
+        PathsenseLocationProviderApi api = PathsenseLocationProviderApi.getInstance(this);
+        api.removeGeofence("Classroom");
+        api.destroy();
     }
 }

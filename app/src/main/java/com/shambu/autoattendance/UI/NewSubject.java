@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.app.TimePickerDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -142,41 +143,56 @@ public class NewSubject extends AppCompatActivity implements View.OnClickListene
 
     @OnClick(R.id.add_button)
     void saveSubject() {
+        String firstTime = "";
         if (mon.isChecked()) {
-            SubjectSchedulePojo ss = new SubjectSchedulePojo(0,
+            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),2,
                     getH(fmon), getM(fmon), getH(tmon), getM(tmon));
+  //          firstTime = firstTimeFinder(firstTime, fmon);
             subSchedule.add(ss);
         }
         if (tue.isChecked()) {
-            SubjectSchedulePojo ss = new SubjectSchedulePojo(1,
+            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),3,
                     getH(ftue), getM(ftue), getH(ttue), getM(ttue));
+    //        firstTime = firstTimeFinder(firstTime, ftue);
             subSchedule.add(ss);
         }
         if (wed.isChecked()) {
-            SubjectSchedulePojo ss = new SubjectSchedulePojo(2,
+            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),4,
                     getH(fwed), getM(fwed), getH(twed), getM(twed));
+      //      firstTime = firstTimeFinder(firstTime, fwed);
             subSchedule.add(ss);
         }
         if (thur.isChecked()) {
-            SubjectSchedulePojo ss = new SubjectSchedulePojo(3,
+            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),5,
                     getH(fthur), getM(fthur), getH(tthur), getM(tthur));
+        //    firstTime = firstTimeFinder(firstTime, fthur);
             subSchedule.add(ss);
         }
         if (fri.isChecked()) {
-            SubjectSchedulePojo ss = new SubjectSchedulePojo(4,
+            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),6,
                     getH(ffri), getM(ffri), getH(tfri), getM(tfri));
+          //  firstTime = firstTimeFinder(firstTime, ffri);
             subSchedule.add(ss);
         }
         if (sat.isChecked()) {
-            SubjectSchedulePojo ss = new SubjectSchedulePojo(5,
+            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),7,
                     getH(fsat), getM(fsat), getH(tsat), getM(tsat));
+            //firstTime = firstTimeFinder(firstTime, fsat);
             subSchedule.add(ss);
         }
         if (sun.isChecked()) {
-            SubjectSchedulePojo ss = new SubjectSchedulePojo(6,
+            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),1,
                     getH(fsun), getM(fsun), getH(tsun), getM(tsun));
+            //firstTime = firstTimeFinder(firstTime, fsun);
             subSchedule.add(ss);
         }
+
+  /*      SharedPreferences preferences = getApplicationContext().getSharedPreferences("AutoAtt", 0);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("TimetableStartsAt", firstTimeFinderSS(firstTime,
+                preferences.getString("TimetableStartsAt","")));
+        editor.commit();  */
+
         subjectData = new SubjectPojo(Integer.parseInt(subMinPercentage.getText().toString()),
                 subCode.getText().toString(), subName.getText().toString(), profName.getText().toString(), subSchedule);
 
@@ -185,6 +201,110 @@ public class NewSubject extends AppCompatActivity implements View.OnClickListene
         setResult(Activity.RESULT_OK);
         finish();
     }
+
+  /*  private String firstTimeFinderSS(String sh, String tv){
+        int fH, fM, shH, shM;
+        fH = Character.getNumericValue(tv.charAt(0))*10 +
+                Character.getNumericValue(tv.charAt(1))*1;
+        fM = Character.getNumericValue(tv.charAt(3))*10 +
+                Character.getNumericValue(tv.charAt(4))*1;
+        if(!sh.equals("") && !tv.equals("")){
+            shH = Character.getNumericValue(sh.charAt(0))*10 +
+                    Character.getNumericValue(sh.charAt(1))*1;
+            shM = Character.getNumericValue(sh.charAt(3))*10 +
+                    Character.getNumericValue(sh.charAt(4))*1;
+
+            if(shH>fH || (shH==fH && shM>fM)){
+                if(fH/10 == 0){
+                    if(fM/10 == 0){
+                        sh = "0"+fH + ":0" + fM;
+                    }
+                    else{
+                        sh = "0"+fH + ":" + fM;
+                    }
+                }
+                else {
+                    if(fM/10 == 0){
+                        sh = fH + ":0" + fM;
+                    }
+                    else{
+                        sh = fH + ":" + fM;
+                    }
+                }
+            }
+        } else {
+            if(fH/10 == 0){
+                if(fM/10 == 0){
+                    sh = "0"+fH + ":0" + fM;
+                }
+                else{
+                    sh = "0"+fH + ":" + fM;
+                }
+            }
+            else {
+                if(fM/10 == 0){
+                    sh = fH + ":0" + fM;
+                }
+                else{
+                    sh = fH + ":" + fM;
+                }
+            }
+        }
+
+        return sh;
+    }
+
+    private String firstTimeFinder(String sh, TextView tv){
+        int fH, fM, shH, shM;
+        fH = Character.getNumericValue(tv.getText().charAt(0))*10 +
+                Character.getNumericValue(tv.getText().charAt(1))*1;
+        fM = Character.getNumericValue(tv.getText().charAt(3))*10 +
+                Character.getNumericValue(tv.getText().charAt(4))*1;
+        if(!sh.equals("")){
+            shH = Character.getNumericValue(sh.charAt(0))*10 +
+                    Character.getNumericValue(sh.charAt(1))*1;
+            shM = Character.getNumericValue(sh.charAt(3))*10 +
+                    Character.getNumericValue(sh.charAt(4))*1;
+
+            if(shH>fH || (shH==fH && shM>fM)){
+                if(fH/10 == 0){
+                    if(fM/10 == 0){
+                        sh = "0"+fH + ":0" + fM;
+                    }
+                    else{
+                        sh = "0"+fH + ":" + fM;
+                    }
+                }
+                else {
+                    if(fM/10 == 0){
+                        sh = fH + ":0" + fM;
+                    }
+                    else{
+                        sh = fH + ":" + fM;
+                    }
+                }
+            }
+        } else {
+            if(fH/10 == 0){
+                if(fM/10 == 0){
+                    sh = "0"+fH + ":0" + fM;
+                }
+                else{
+                    sh = "0"+fH + ":" + fM;
+                }
+            }
+            else {
+                if(fM/10 == 0){
+                    sh = fH + ":0" + fM;
+                }
+                else{
+                    sh = fH + ":" + fM;
+                }
+            }
+        }
+
+        return sh;
+    }  */
 
     private int getH(TextView tv) {
         int h;

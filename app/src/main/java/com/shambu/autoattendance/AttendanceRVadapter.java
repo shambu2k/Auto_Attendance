@@ -20,7 +20,7 @@ import java.util.List;
 
 public class AttendanceRVadapter extends RecyclerView.Adapter {
 
-    private static final String TAG = "AttendanceRVadapter";
+    private static final String TAG = AttendanceRVadapter.class.getSimpleName();
     private static DecimalFormat df = new DecimalFormat("0.00");
 
     private AttendanceListener attendanceListener;
