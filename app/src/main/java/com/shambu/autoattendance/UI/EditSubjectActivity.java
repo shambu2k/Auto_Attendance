@@ -4,8 +4,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,12 +23,14 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.shambu.autoattendance.AutoAttendanceData;
+import com.shambu.autoattendance.ClassEndingAlarmManagerReceiver;
 import com.shambu.autoattendance.DataClasses.SubjectPojo;
 import com.shambu.autoattendance.DataClasses.SubjectSchedulePojo;
 import com.shambu.autoattendance.R;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import butterknife.BindView;
@@ -94,6 +101,7 @@ public class EditSubjectActivity extends AppCompatActivity implements View.OnCli
     private SubjectPojo pojo;
     private int mHour, mMin;
     private List<SubjectSchedulePojo> subSchedule;
+    private SharedPreferences pref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +109,7 @@ public class EditSubjectActivity extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.activity_edit_subject);
         ButterKnife.bind(this);
 
+        pref = this.getSharedPreferences("AutoAtt", 0);
         subSchedule = new ArrayList<>();
         Type listType = new TypeToken<SubjectPojo>() {
         }.getType();
@@ -134,7 +143,7 @@ public class EditSubjectActivity extends AppCompatActivity implements View.OnCli
                     break;
                 }
                 case 5 : {
-                    thur.isChecked();
+                    thur.setChecked(true);
                     setTiminginTextView(fthur, pojo.getSchedule().get(i).getfH(), pojo.getSchedule().get(i).getfM());
                     setTiminginTextView(tthur, pojo.getSchedule().get(i).gettH(), pojo.getSchedule().get(i).gettM());
                     break;
@@ -217,46 +226,53 @@ public class EditSubjectActivity extends AppCompatActivity implements View.OnCli
     @OnClick(R.id.save_button)
     void saveSubject() {
         if (mon.isChecked()) {
-            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(), 2,
+            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),2,
                     getH(fmon), getM(fmon), getH(tmon), getM(tmon));
+            checkFirst(2,  getH(tmon), getM(tmon));
             subSchedule.add(ss);
         }
         if (tue.isChecked()) {
-            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(), 3,
+            SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),3,
                     getH(ftue), getM(ftue), getH(ttue), getM(ttue));
+            checkFirst(3, getH(ttue), getM(ttue));
             subSchedule.add(ss);
         }
         if (wed.isChecked()) {
             SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),4,
                     getH(fwed), getM(fwed), getH(twed), getM(twed));
+            checkFirst(4, getH(twed), getM(twed));
             subSchedule.add(ss);
         }
         if (thur.isChecked()) {
             SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),5,
                     getH(fthur), getM(fthur), getH(tthur), getM(tthur));
+            checkFirst(5, getH(tthur), getM(tthur));
             subSchedule.add(ss);
         }
         if (fri.isChecked()) {
             SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),6,
                     getH(ffri), getM(ffri), getH(tfri), getM(tfri));
+            checkFirst(6, getH(tfri), getM(tfri));
             subSchedule.add(ss);
         }
         if (sat.isChecked()) {
             SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),7,
                     getH(fsat), getM(fsat), getH(tsat), getM(tsat));
+            checkFirst(7, getH(tsat), getM(tsat));
             subSchedule.add(ss);
         }
         if (sun.isChecked()) {
             SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),1,
                     getH(fsun), getM(fsun), getH(tsun), getM(tsun));
+            checkFirst(1, getH(tsun), getM(tsun));
             subSchedule.add(ss);
         }
         SubjectPojo subjectData = new SubjectPojo(Integer.parseInt(subMinPercentage.getText().toString()),
                 subCode.getText().toString(), subName.getText().toString(), profName.getText().toString(), subSchedule, pojo.getAttendanceHistory());
 
+        fireInitAlarm();
         AutoAttendanceData sqlTable = new AutoAttendanceData(EditSubjectActivity.this);
         sqlTable.updateSubject(subjectData);
-
         setResult(Activity.RESULT_OK);
         finish();
 
@@ -305,5 +321,81 @@ public class EditSubjectActivity extends AppCompatActivity implements View.OnCli
             }
         }, mHour, mMin, true);
         timePickerDialog.show();
+    }
+
+    private void checkFirst(int day, int h, int m){
+        if(pref.getString("FirstTriggerOfTheWeek", "").equals("")){
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString("FirstTriggerOfTheWeek",day+","+h+","+m);
+            editor.commit();
+        } else if(getIngressTimedata(pref.getString("FirstTriggerOfTheWeek", ""))[0] > day){
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString("FirstTriggerOfTheWeek",day+","+h+","+m);
+            editor.commit();
+        } else if(getIngressTimedata(pref.getString("FirstTriggerOfTheWeek", ""))[0] == day &&
+                getIngressTimedata(pref.getString("FirstTriggerOfTheWeek", ""))[1] > h){
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString("FirstTriggerOfTheWeek",day+","+h+","+m);
+            editor.commit();
+        } else if(getIngressTimedata(pref.getString("FirstTriggerOfTheWeek", ""))[0] == day &&
+                getIngressTimedata(pref.getString("FirstTriggerOfTheWeek", ""))[1] == h &&
+                getIngressTimedata(pref.getString("FirstTriggerOfTheWeek", ""))[2] > m){
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString("FirstTriggerOfTheWeek",day+","+h+","+m);
+            editor.commit();
+        } else {
+
+        }
+    }
+
+    private int[] getIngressTimedata(String data) {
+        char[] datachar = data.toCharArray();
+        int day, ingH, ingM;
+
+        day = Integer.parseInt(String.valueOf(datachar[0]));
+
+        if (datachar[3] == ',') {
+            ingH = Integer.parseInt(String.valueOf(datachar[2]));
+        } else {
+            ingH = Integer.parseInt(String.valueOf(datachar[2])) * 10 + Integer.parseInt(String.valueOf(datachar[3]));
+        }
+
+        if (datachar[3] == ',' && datachar.length == 5) {
+            ingM = Integer.parseInt(String.valueOf(datachar[4]));
+        } else if (datachar[3] == ',' && datachar.length == 6) {
+            ingM = Integer.parseInt(String.valueOf(datachar[4])) * 10 + Integer.parseInt(String.valueOf(datachar[5]));
+        } else if (datachar[4] == ',' && datachar.length == 6) {
+            ingM = Integer.parseInt(String.valueOf(datachar[5]));
+        } else if (datachar[4] == ',' && datachar.length == 7) {
+            ingM = Integer.parseInt(String.valueOf(datachar[5])) * 10 + Integer.parseInt(String.valueOf(datachar[6]));
+        } else {
+            ingM = 0;
+        }
+
+        return new int[]{day, ingH, ingM};
+    }
+
+    private void fireInitAlarm(){
+        Calendar calendar = Calendar.getInstance();
+        if(!pref.getString("FirstTriggerOfTheWeek", "").equals("")){
+            int[] firstTimeData = getIngressTimedata(pref.getString("FirstTriggerOfTheWeek", ""));
+            calendar.set(Calendar.DAY_OF_WEEK, firstTimeData[0]);
+            calendar.set(Calendar.HOUR_OF_DAY, firstTimeData[1]);
+            calendar.set(Calendar.MINUTE, firstTimeData[2]);
+            calendar.set(Calendar.SECOND, 0);
+
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(this, ClassEndingAlarmManagerReceiver.class);
+            intent.putExtra("time", firstTimeData[1]+":"+firstTimeData[2]);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 619, intent, 0);
+
+            if(pref.getBoolean("AlarmStarted", false)){
+                alarmManager.cancel(pendingIntent);
+            }
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putBoolean("AlarmStarted", true);
+            editor.commit();
+        }
     }
 }

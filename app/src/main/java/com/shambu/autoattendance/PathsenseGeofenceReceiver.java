@@ -20,24 +20,13 @@ public class PathsenseGeofenceReceiver extends BroadcastReceiver {
 
     private static final String TAG = PathsenseGeofenceReceiver.class.getSimpleName();
     private SharedPreferences preferences;
+    private NotificationCompat.Builder builder;
+    private NotificationManager notificationManager;
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onReceive(Context context, Intent intent) {
         PathsenseGeofenceEvent geofenceEvent = PathsenseGeofenceEvent.fromIntent(intent);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context , "default" ) ;
-        builder.setContentTitle( "Auto Attendance" ) ;
-        builder.setSmallIcon(R.drawable. ic_launcher_foreground ) ;
-        builder.setAutoCancel( true ) ;
-        builder.setChannelId("default") ;
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context. NOTIFICATION_SERVICE ) ;
-        if (android.os.Build.VERSION. SDK_INT >= android.os.Build.VERSION_CODES. O ) {
-            int importance = NotificationManager. IMPORTANCE_HIGH ;
-            NotificationChannel notificationChannel = new NotificationChannel("default" , "AutoAttendance" , NotificationManager.IMPORTANCE_HIGH) ;
-            assert notificationManager != null;
-            notificationManager.createNotificationChannel(notificationChannel) ;
-        }
-        assert notificationManager != null;
+        NotificationInit(context);
 
         if (geofenceEvent != null)
         {
@@ -45,10 +34,8 @@ public class PathsenseGeofenceReceiver extends BroadcastReceiver {
             SharedPreferences.Editor editor = preferences.edit();
             if (geofenceEvent.isIngress())
             {
+                NotificationNotify("Ingress");
                 Location location = geofenceEvent.getLocation();
-                builder.setContentText( "Ingress" ) ;
-                Notification notification = builder.build() ;
-                notificationManager.notify( 1 , notification) ;
                 editor.putString("IngressOrEgress", "Ingress");
                 editor.commit();
                 context.startService(new Intent(context, DatabaseUpdateService.class));
@@ -59,9 +46,7 @@ public class PathsenseGeofenceReceiver extends BroadcastReceiver {
             }
             else if (geofenceEvent.isEgress())
             {
-                builder.setContentText( "Egress" ) ;
-                Notification notification = builder.build() ;
-                notificationManager.notify( 1 , notification) ;
+                NotificationNotify("Egress");
                 Location location = geofenceEvent.getLocation();
                 editor.putString("IngressOrEgress", "Egress");
                 editor.commit();
@@ -72,5 +57,27 @@ public class PathsenseGeofenceReceiver extends BroadcastReceiver {
                         location.getSpeed() + ", " + location.getBearing() + ", " + location.getAccuracy());
             }
         }
+    }
+
+    private void NotificationInit(Context context){
+        builder = new NotificationCompat.Builder(context , "default" ) ;
+        builder.setContentTitle( "Auto Attendance" ) ;
+        builder.setSmallIcon(R.drawable. ic_launcher_foreground ) ;
+        builder.setAutoCancel( true ) ;
+        builder.setChannelId("default") ;
+        notificationManager = (NotificationManager) context.getSystemService(Context. NOTIFICATION_SERVICE ) ;
+        if (android.os.Build.VERSION. SDK_INT >= android.os.Build.VERSION_CODES. O ) {
+            int importance = NotificationManager. IMPORTANCE_HIGH ;
+            NotificationChannel notificationChannel = new NotificationChannel("default" , "AutoAttendance" , NotificationManager.IMPORTANCE_HIGH) ;
+            assert notificationManager != null;
+            notificationManager.createNotificationChannel(notificationChannel) ;
+        }
+        assert notificationManager != null;
+    }
+
+    private void NotificationNotify(String msg){
+        builder.setContentText(msg) ;
+        Notification notification = builder.build() ;
+        notificationManager.notify( 1 , notification) ;
     }
 }

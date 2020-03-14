@@ -1,6 +1,7 @@
 package com.shambu.autoattendance.UI;
 
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -9,13 +10,15 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.Switch;
 
-import com.shambu.autoattendance.GeofencingServiceTogglerInterface;
+import com.shambu.autoattendance.Interfaces.GeofencingServiceTogglerInterface;
 import com.shambu.autoattendance.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 
 
@@ -24,8 +27,12 @@ public class SettingsFragment extends Fragment {
 
     private GeofencingServiceTogglerInterface ginterface;
     private SharedPreferences pref;
+
     @BindView(R.id.toggleGeofencing)
-    Button toggle;
+    Switch toggle;
+
+    @BindView(R.id.changeLoc_ll)
+    LinearLayout changeloc_ll;
 
 
     @Override
@@ -37,24 +44,28 @@ public class SettingsFragment extends Fragment {
         ginterface = (GeofencingServiceTogglerInterface) getActivity();
         pref = getContext().getSharedPreferences("AutoAtt", 0);
         if(pref.getString("GeofencingService", "ON").equals("ON")){
-            toggle.setText("STOP GEOFENCING SERVICE");
+            toggle.setChecked(true);
         } else if(pref.getString("GeofencingService", "ON").equals("OFF")){
-            toggle.setText("START GEOFENCING SERVICE");
+            toggle.setChecked(false);
         }
 
 
         return view;
     }
 
-    @OnClick(R.id.toggleGeofencing)
+    @OnCheckedChanged(R.id.toggleGeofencing)
     void toggleService(){
-        if(toggle.getText().toString().equals("START GEOFENCING SERVICE")){
-            toggle.setText("STOP GEOFENCING SERVICE");
+        if(toggle.isChecked()){
             ginterface.startGService();
-        } else if(toggle.getText().toString().equals("STOP GEOFENCING SERVICE")){
-            toggle.setText("START GEOFENCING SERVICE");
+        } else {
             ginterface.stopGService();
         }
+    }
+
+    @OnClick(R.id.changeLoc_ll)
+    void startSelectLocAct(){
+        Intent intent = new Intent(getContext(), SelectClassLocation.class);
+        startActivity(intent);
     }
 
 }

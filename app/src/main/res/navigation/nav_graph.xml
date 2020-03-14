@@ -13,7 +13,7 @@
         <action
             android:id="@+id/action_attendanceFragment_self"
             app:destination="@id/attendanceFragment"
-            app:popUpTo="@id/attendanceFragment" />
+            app:popUpTo="@id/nav_graph" />
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
@@ -28,7 +28,6 @@
         <action
             android:id="@+id/action_timeTableFragment_self"
             app:destination="@id/timeTableFragment"
-            app:popUpTo="@id/timeTableFragment"
-            app:popUpToInclusive="true" />
+            app:popUpTo="@id/nav_graph" />
     </fragment>
 </navigation>

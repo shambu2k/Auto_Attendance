@@ -20,7 +20,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.pathsense.android.sdk.location.PathsenseLocationProviderApi;
-import com.shambu.autoattendance.GeofencingServiceTogglerInterface;
+import com.shambu.autoattendance.Interfaces.GeofencingServiceTogglerInterface;
 import com.shambu.autoattendance.PathsenseGeofenceReceiver;
 import com.shambu.autoattendance.R;
 

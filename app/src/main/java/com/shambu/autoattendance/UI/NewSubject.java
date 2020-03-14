@@ -3,7 +3,11 @@ package com.shambu.autoattendance.UI;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,11 +19,13 @@ import android.widget.TimePicker;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.shambu.autoattendance.AutoAttendanceData;
+import com.shambu.autoattendance.ClassEndingAlarmManagerReceiver;
 import com.shambu.autoattendance.DataClasses.SubjectPojo;
 import com.shambu.autoattendance.DataClasses.SubjectSchedulePojo;
 import com.shambu.autoattendance.R;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import butterknife.BindView;
@@ -88,6 +94,7 @@ public class NewSubject extends AppCompatActivity implements View.OnClickListene
     private int mHour, mMin;
     private List<SubjectSchedulePojo> subSchedule;
     private SubjectPojo subjectData;
+    private SharedPreferences pref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +118,8 @@ public class NewSubject extends AppCompatActivity implements View.OnClickListene
         tsun.setOnClickListener(this);
 
         subSchedule = new ArrayList<>();
+
+        pref = this.getSharedPreferences("AutoAtt", 0);
 
     }
 
@@ -143,168 +152,57 @@ public class NewSubject extends AppCompatActivity implements View.OnClickListene
 
     @OnClick(R.id.add_button)
     void saveSubject() {
-        String firstTime = "";
         if (mon.isChecked()) {
             SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),2,
                     getH(fmon), getM(fmon), getH(tmon), getM(tmon));
-  //          firstTime = firstTimeFinder(firstTime, fmon);
+            checkFirst(2,  getH(tmon), getM(tmon));
             subSchedule.add(ss);
         }
         if (tue.isChecked()) {
             SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),3,
                     getH(ftue), getM(ftue), getH(ttue), getM(ttue));
-    //        firstTime = firstTimeFinder(firstTime, ftue);
+            checkFirst(3, getH(ttue), getM(ttue));
             subSchedule.add(ss);
         }
         if (wed.isChecked()) {
             SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),4,
                     getH(fwed), getM(fwed), getH(twed), getM(twed));
-      //      firstTime = firstTimeFinder(firstTime, fwed);
+            checkFirst(4, getH(twed), getM(twed));
             subSchedule.add(ss);
         }
         if (thur.isChecked()) {
             SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),5,
                     getH(fthur), getM(fthur), getH(tthur), getM(tthur));
-        //    firstTime = firstTimeFinder(firstTime, fthur);
+            checkFirst(5, getH(tthur), getM(tthur));
             subSchedule.add(ss);
         }
         if (fri.isChecked()) {
             SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),6,
                     getH(ffri), getM(ffri), getH(tfri), getM(tfri));
-          //  firstTime = firstTimeFinder(firstTime, ffri);
+            checkFirst(6, getH(tfri), getM(tfri));
             subSchedule.add(ss);
         }
         if (sat.isChecked()) {
             SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),7,
                     getH(fsat), getM(fsat), getH(tsat), getM(tsat));
-            //firstTime = firstTimeFinder(firstTime, fsat);
+            checkFirst(7, getH(tsat), getM(tsat));
             subSchedule.add(ss);
         }
         if (sun.isChecked()) {
             SubjectSchedulePojo ss = new SubjectSchedulePojo(subCode.getText().toString(),1,
                     getH(fsun), getM(fsun), getH(tsun), getM(tsun));
-            //firstTime = firstTimeFinder(firstTime, fsun);
+            checkFirst(1, getH(tsun), getM(tsun));
             subSchedule.add(ss);
         }
-
-  /*      SharedPreferences preferences = getApplicationContext().getSharedPreferences("AutoAtt", 0);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString("TimetableStartsAt", firstTimeFinderSS(firstTime,
-                preferences.getString("TimetableStartsAt","")));
-        editor.commit();  */
-
         subjectData = new SubjectPojo(Integer.parseInt(subMinPercentage.getText().toString()),
                 subCode.getText().toString(), subName.getText().toString(), profName.getText().toString(), subSchedule);
 
+        fireInitAlarm();
         AutoAttendanceData sqlTable = new AutoAttendanceData(NewSubject.this);
         sqlTable.addNewSubtoSQL(subjectData);
         setResult(Activity.RESULT_OK);
         finish();
     }
-
-  /*  private String firstTimeFinderSS(String sh, String tv){
-        int fH, fM, shH, shM;
-        fH = Character.getNumericValue(tv.charAt(0))*10 +
-                Character.getNumericValue(tv.charAt(1))*1;
-        fM = Character.getNumericValue(tv.charAt(3))*10 +
-                Character.getNumericValue(tv.charAt(4))*1;
-        if(!sh.equals("") && !tv.equals("")){
-            shH = Character.getNumericValue(sh.charAt(0))*10 +
-                    Character.getNumericValue(sh.charAt(1))*1;
-            shM = Character.getNumericValue(sh.charAt(3))*10 +
-                    Character.getNumericValue(sh.charAt(4))*1;
-
-            if(shH>fH || (shH==fH && shM>fM)){
-                if(fH/10 == 0){
-                    if(fM/10 == 0){
-                        sh = "0"+fH + ":0" + fM;
-                    }
-                    else{
-                        sh = "0"+fH + ":" + fM;
-                    }
-                }
-                else {
-                    if(fM/10 == 0){
-                        sh = fH + ":0" + fM;
-                    }
-                    else{
-                        sh = fH + ":" + fM;
-                    }
-                }
-            }
-        } else {
-            if(fH/10 == 0){
-                if(fM/10 == 0){
-                    sh = "0"+fH + ":0" + fM;
-                }
-                else{
-                    sh = "0"+fH + ":" + fM;
-                }
-            }
-            else {
-                if(fM/10 == 0){
-                    sh = fH + ":0" + fM;
-                }
-                else{
-                    sh = fH + ":" + fM;
-                }
-            }
-        }
-
-        return sh;
-    }
-
-    private String firstTimeFinder(String sh, TextView tv){
-        int fH, fM, shH, shM;
-        fH = Character.getNumericValue(tv.getText().charAt(0))*10 +
-                Character.getNumericValue(tv.getText().charAt(1))*1;
-        fM = Character.getNumericValue(tv.getText().charAt(3))*10 +
-                Character.getNumericValue(tv.getText().charAt(4))*1;
-        if(!sh.equals("")){
-            shH = Character.getNumericValue(sh.charAt(0))*10 +
-                    Character.getNumericValue(sh.charAt(1))*1;
-            shM = Character.getNumericValue(sh.charAt(3))*10 +
-                    Character.getNumericValue(sh.charAt(4))*1;
-
-            if(shH>fH || (shH==fH && shM>fM)){
-                if(fH/10 == 0){
-                    if(fM/10 == 0){
-                        sh = "0"+fH + ":0" + fM;
-                    }
-                    else{
-                        sh = "0"+fH + ":" + fM;
-                    }
-                }
-                else {
-                    if(fM/10 == 0){
-                        sh = fH + ":0" + fM;
-                    }
-                    else{
-                        sh = fH + ":" + fM;
-                    }
-                }
-            }
-        } else {
-            if(fH/10 == 0){
-                if(fM/10 == 0){
-                    sh = "0"+fH + ":0" + fM;
-                }
-                else{
-                    sh = "0"+fH + ":" + fM;
-                }
-            }
-            else {
-                if(fM/10 == 0){
-                    sh = fH + ":0" + fM;
-                }
-                else{
-                    sh = fH + ":" + fM;
-                }
-            }
-        }
-
-        return sh;
-    }  */
 
     private int getH(TextView tv) {
         int h;
@@ -322,6 +220,83 @@ public class NewSubject extends AppCompatActivity implements View.OnClickListene
         m = Integer.parseInt(String.valueOf(tvText.charAt(4))) * 1 + Integer.parseInt(String.valueOf(tvText.charAt(3))) * 10;
 
         return m;
+    }
+
+    private void checkFirst(int day, int h, int m){
+        if(pref.getString("FirstTriggerOfTheWeek", "").equals("")){
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString("FirstTriggerOfTheWeek",day+","+h+","+m);
+            editor.commit();
+        } else if(getIngressTimedata(pref.getString("FirstTriggerOfTheWeek", ""))[0] > day){
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString("FirstTriggerOfTheWeek",day+","+h+","+m);
+            editor.commit();
+        } else if(getIngressTimedata(pref.getString("FirstTriggerOfTheWeek", ""))[0] == day &&
+                getIngressTimedata(pref.getString("FirstTriggerOfTheWeek", ""))[1] > h){
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString("FirstTriggerOfTheWeek",day+","+h+","+m);
+            editor.commit();
+        } else if(getIngressTimedata(pref.getString("FirstTriggerOfTheWeek", ""))[0] == day &&
+                getIngressTimedata(pref.getString("FirstTriggerOfTheWeek", ""))[1] == h &&
+                getIngressTimedata(pref.getString("FirstTriggerOfTheWeek", ""))[2] > m){
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString("FirstTriggerOfTheWeek",day+","+h+","+m);
+            editor.commit();
+        } else {
+
+        }
+    }
+
+    private int[] getIngressTimedata(String data) {
+        char[] datachar = data.toCharArray();
+        int day, ingH, ingM;
+
+        day = Integer.parseInt(String.valueOf(datachar[0]));
+
+        if (datachar[3] == ',') {
+            ingH = Integer.parseInt(String.valueOf(datachar[2]));
+        } else {
+            ingH = Integer.parseInt(String.valueOf(datachar[2])) * 10 + Integer.parseInt(String.valueOf(datachar[3]));
+        }
+
+        if (datachar[3] == ',' && datachar.length == 5) {
+            ingM = Integer.parseInt(String.valueOf(datachar[4]));
+        } else if (datachar[3] == ',' && datachar.length == 6) {
+            ingM = Integer.parseInt(String.valueOf(datachar[4])) * 10 + Integer.parseInt(String.valueOf(datachar[5]));
+        } else if (datachar[4] == ',' && datachar.length == 6) {
+            ingM = Integer.parseInt(String.valueOf(datachar[5]));
+        } else if (datachar[4] == ',' && datachar.length == 7) {
+            ingM = Integer.parseInt(String.valueOf(datachar[5])) * 10 + Integer.parseInt(String.valueOf(datachar[6]));
+        } else {
+            ingM = 0;
+        }
+
+        return new int[]{day, ingH, ingM};
+    }
+
+    private void fireInitAlarm(){
+        Calendar calendar = Calendar.getInstance();
+        if(!pref.getString("FirstTriggerOfTheWeek", "").equals("")){
+            int[] firstTimeData = getIngressTimedata(pref.getString("FirstTriggerOfTheWeek", ""));
+            calendar.set(Calendar.DAY_OF_WEEK, firstTimeData[0]);
+            calendar.set(Calendar.HOUR_OF_DAY, firstTimeData[1]);
+            calendar.set(Calendar.MINUTE, firstTimeData[2]);
+            calendar.set(Calendar.SECOND, 0);
+
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(this, ClassEndingAlarmManagerReceiver.class);
+            intent.putExtra("time", firstTimeData[1]+":"+firstTimeData[2]);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 619, intent, 0);
+
+            if(pref.getBoolean("AlarmStarted", false)){
+                alarmManager.cancel(pendingIntent);
+            }
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                    AlarmManager.INTERVAL_DAY * 7, pendingIntent);
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putBoolean("AlarmStarted", true);
+            editor.commit();
+        }
     }
 
 }

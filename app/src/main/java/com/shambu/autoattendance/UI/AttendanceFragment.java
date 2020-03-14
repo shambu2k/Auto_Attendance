@@ -1,7 +1,5 @@
 package com.shambu.autoattendance.UI;
 
-
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -19,8 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.shambu.autoattendance.AttendanceHistoryTimelineActivity;
-import com.shambu.autoattendance.AttendanceListener;
+import com.google.gson.Gson;
+import com.shambu.autoattendance.Interfaces.AttendanceListener;
 import com.shambu.autoattendance.AttendanceRVadapter;
 import com.shambu.autoattendance.AutoAttendanceData;
 import com.shambu.autoattendance.DataClasses.AttendanceHistoryPojo;
@@ -150,6 +148,15 @@ public class AttendanceFragment extends Fragment implements AttendanceListener {
         intent.putExtra("SubjectCode", allSubs.get(position).getSubjectCode());
         startActivityForResult(intent, 1010);
 
+    }
+
+    @Override
+    public void editSubjectOnLongClick(int position) {
+        SubjectPojo pojo = allSubs.get(position);
+        Intent intent = new Intent(getContext(), EditSubjectActivity.class);
+        String subjectedit = new Gson().toJson(pojo);
+        intent.putExtra("SubjectPojo", subjectedit);
+        startActivityForResult(intent, 1010);
     }
 
     @Override

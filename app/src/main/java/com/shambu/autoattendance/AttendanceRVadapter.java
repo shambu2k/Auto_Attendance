@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.shambu.autoattendance.DataClasses.AttendanceHistoryPojo;
 import com.shambu.autoattendance.DataClasses.SubjectPojo;
+import com.shambu.autoattendance.Interfaces.AttendanceListener;
 
 import java.text.DecimalFormat;
 import java.util.List;
@@ -57,7 +58,7 @@ public class AttendanceRVadapter extends RecyclerView.Adapter {
         return allSubjects.size();
     }
 
-    private class AttendancePercentageHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private class AttendancePercentageHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         private AttendanceListener mListener;
 
@@ -82,6 +83,7 @@ public class AttendanceRVadapter extends RecyclerView.Adapter {
             noclass.setOnClickListener(this);
             absent.setOnClickListener(this);
             ll.setOnClickListener(this);
+            ll.setOnLongClickListener(this);
         }
 
         void bind(SubjectPojo pojo){
@@ -116,6 +118,12 @@ public class AttendanceRVadapter extends RecyclerView.Adapter {
             else{
                 mListener.markAttendanceClick(v, getAdapterPosition());
             }
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            mListener.editSubjectOnLongClick(getAdapterPosition());
+            return false;
         }
     }
 

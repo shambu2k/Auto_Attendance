@@ -11,9 +11,23 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        debug{
+            buildConfigField 'String', "googleApiKey", AUTOATT_GOOGLE_API
+            resValue 'string', "googleApiKey", AUTOATT_GOOGLE_API
+            buildConfigField 'String', "pathsenseClientId", AUTOATT_PATHSENSECLIENTID_API
+            resValue 'string', "pathsenseClientId", AUTOATT_PATHSENSECLIENTID_API
+            buildConfigField 'String', "pathsenseApiKey", AUTOATT_PATHSENSE_API
+            resValue 'string', "pathsenseApiKey", AUTOATT_PATHSENSE_API
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField 'String', "googleApiKey", AUTOATT_GOOGLE_API
+            resValue 'string', "googleApiKey", AUTOATT_GOOGLE_API
+            buildConfigField 'String', "pathsenseClientId", AUTOATT_PATHSENSECLIENTID_API
+            resValue 'string', "pathsenseClientId", AUTOATT_PATHSENSECLIENTID_API
+            buildConfigField 'String', "pathsenseApiKey", AUTOATT_PATHSENSE_API
+            resValue 'string', "pathsenseApiKey", AUTOATT_PATHSENSE_API
         }
     }
     compileOptions {

@@ -10,7 +10,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".AttendanceHistoryTimelineActivity" android:theme="@style/AppThemeNAB"></activity>
+        <activity
+            android:name=".UI.AttendanceHistoryTimelineActivity"
+            android:theme="@style/AppThemeNAB"></activity>
         <activity
             android:name=".UI.EditSubjectActivity"
             android:theme="@style/AppThemeNAB" />
@@ -30,8 +32,9 @@
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name=".PathsenseGeofenceReceiver" />
+        <receiver android:name=".PathsenseGeofenceReceiver" />
+
+        <receiver android:name=".ClassEndingAlarmManagerReceiver"/>
 
         <service android:name=".DatabaseUpdateService" />
 
@@ -40,7 +43,7 @@
             android:resource="@array/preloaded_fonts" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/googelemap_key" />
+            android:value="@string/googleApiKey" />
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -52,15 +55,16 @@
 
         <meta-data
             android:name="com.pathsense.android.sdk.CLIENT_ID"
-            android:value="@string/pathsenseApi_clientID" />
+            android:value="@string/pathsenseClientId" />
 
         <meta-data
             android:name="com.pathsense.android.sdk.API_KEY"
-            android:value="@string/pathsenseApi_key" />
+            android:value="@string/pathsenseApiKey" />
     </application>
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />

@@ -23,7 +23,6 @@ public class DatabaseUpdateService extends Service {
     private Context context;
     private Thread backgroundThread;
     private AutoAttendanceData data;
-    private Intent intent2;
     public static final String TAG = DatabaseUpdateService.class.getSimpleName();
 
     @Nullable
@@ -92,7 +91,6 @@ public class DatabaseUpdateService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        intent2 = intent;
         if (!this.isRunning) {
             this.isRunning = true;
             this.backgroundThread.start();
@@ -100,7 +98,7 @@ public class DatabaseUpdateService extends Service {
         return START_STICKY;
     }
 
-    int[] getIngressTimedata(String data) {
+    private int[] getIngressTimedata(String data) {
         char[] datachar = data.toCharArray();
         int day, ingH, ingM;
 
@@ -126,4 +124,6 @@ public class DatabaseUpdateService extends Service {
 
         return new int[]{day, ingH, ingM};
     }
+
+
 }

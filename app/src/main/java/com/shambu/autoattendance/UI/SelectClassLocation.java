@@ -32,7 +32,8 @@ import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.shambu.autoattendance.GeofencingServiceTogglerInterface;
+import com.shambu.autoattendance.BuildConfig;
+import com.shambu.autoattendance.Interfaces.GeofencingServiceTogglerInterface;
 import com.shambu.autoattendance.R;
 
 import java.util.Arrays;
@@ -46,7 +47,6 @@ public class SelectClassLocation extends AppCompatActivity implements OnMapReady
 
     private String TAG = SelectClassLocation.class.getSimpleName();
 
-    private GeofencingServiceTogglerInterface ginterface;
     private GoogleMap mMap;
     private LatLng chennai;
     SupportMapFragment mapFrag;
@@ -86,8 +86,7 @@ public class SelectClassLocation extends AppCompatActivity implements OnMapReady
         setContentView(R.layout.activity_select_class_location);
         ButterKnife.bind(this);
 
-        String apiKey = getString(R.string.googelemap_key);
-        ginterface = (GeofencingServiceTogglerInterface) getApplicationContext();
+        String apiKey = BuildConfig.googleApiKey;
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), apiKey);
         }
@@ -172,7 +171,6 @@ public class SelectClassLocation extends AppCompatActivity implements OnMapReady
                 editor.commit();
 
                 dialogInterface.cancel();
-                ginterface.startGService();
                 startActivity(new Intent(SelectClassLocation.this, MainActivity.class));
                 finish();
             }

@@ -325,4 +325,23 @@ public class AutoAttendanceData extends SQLiteOpenHelper {
             return attendedListSubcode;
         }
     }
+
+    public int getSubColID(String subCode){
+        int colid;
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT "+COL_ID+" FROM " + TABLE_NAME + " WHERE " + COL_SUBCODE + " LIKE '%" + subCode + "%'";
+
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.getCount() > 0) {
+
+            cursor.moveToFirst();
+            colid = cursor.getInt(cursor.getColumnIndex(COL_ID));
+        } else {
+            colid = 0;
+            Log.d(TAG, "Cursor count is zero");
+        }
+        cursor.close();
+        db.close();
+        return colid;
+    }
 }
