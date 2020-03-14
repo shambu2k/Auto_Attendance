@@ -30,4 +30,12 @@
         android:layout_gravity="center"
         android:text="Save" />
 
+    <Button
+        android:id="@+id/del_button_dialog"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Delete" />
+
 </LinearLayout>

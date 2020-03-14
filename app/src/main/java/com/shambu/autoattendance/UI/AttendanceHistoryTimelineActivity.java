@@ -72,6 +72,7 @@ public class AttendanceHistoryTimelineActivity extends AppCompatActivity impleme
         CheckBox attended = dialog.findViewById(R.id.chk_class_attended);
         CheckBox cancelled = dialog.findViewById(R.id.chk_class_cancelled);
         Button savebutt = dialog.findViewById(R.id.save_button_dialog);
+        Button delbutt = dialog.findViewById(R.id.del_button_dialog);
 
         historyHead.setText(allHistory.get(position).getSubCode()+", "+allHistory.get(position).getDate());
         if(allHistory.get(position).getAttendance()){
@@ -129,6 +130,15 @@ public class AttendanceHistoryTimelineActivity extends AppCompatActivity impleme
             }
         });
 
+        delbutt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                allHistory.remove(position);
+                data.updateSubjectAttendance(getIntent().getStringExtra("SubjectCode"), allHistory);
+                dialog.dismiss();
+                adapter.notifyItemChanged(position);
+            }
+        });
 
         dialog.show();
     }
